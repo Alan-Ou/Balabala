@@ -18,6 +18,7 @@
 #include <vector>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QGridLayout>
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QFileIconProvider>
 #include <QDesktopServices>
@@ -25,13 +26,16 @@
 #include <QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QDirIterator>
+#include <QStyle>
+#include<QToolButton>
 #include "the_player.h"
 #include "the_button.h"
-
+#include <QSlider>
+#include"ctrlbuttons.h"
 
 using namespace std;
 
-// read in videos and thumbnails to this directory 在这个目录中读取视频和缩略图
+// read in videos and thumbnails to this directory
 vector<TheButtonInfo> getInfoIn (string loc) {
 
     vector<TheButtonInfo> out =  vector<TheButtonInfo>();
@@ -80,7 +84,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // collect all the videos in the folder
-    vector<TheButtonInfo> videos; // url and icon
+    vector<TheButtonInfo> videos;
 
     if (argc == 2)
         videos = getInfoIn( string(argv[1]) );
@@ -105,44 +109,8 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    // the widget that will show the video
-    QVideoWidget *videoWidget = new QVideoWidget;
+    myWidget window(videos);
 
-    // the QMediaPlayer which controls the playback
-    ThePlayer *player = new ThePlayer;
-    player->setVideoOutput(videoWidget);
-
-    // a row of buttons
-    QWidget *buttonWidget = new QWidget();
-    // a list of the buttons
-    vector<TheButton*> buttons;
-    // the buttons are arranged horizontally
-    QHBoxLayout *layout = new QHBoxLayout();
-    buttonWidget->setLayout(layout);
-
-
-    // create the four buttons
-    for ( int i = 0; i < 4; i++ ) {
-        TheButton *button = new TheButton(buttonWidget);
-        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
-        buttons.push_back(button);
-        layout->addWidget(button);
-        button->init(&videos.at(i));
-    }
-
-    // tell the player what buttons and videos are available
-    player->setContent(&buttons, & videos);
-
-    // create the main window and layout
-    QWidget window;
-    QVBoxLayout *top = new QVBoxLayout();
-    window.setLayout(top);
-    window.setWindowTitle("tomeo");
-    window.setMinimumSize(800, 680);
-
-    // add the video and the buttons to the top level widget
-    top->addWidget(videoWidget);
-    top->addWidget(buttonWidget);
 
     // showtime!
     window.show();
