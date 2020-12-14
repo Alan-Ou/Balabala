@@ -18,7 +18,6 @@
 #include <vector>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QGridLayout>
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QFileIconProvider>
 #include <QDesktopServices>
@@ -26,12 +25,13 @@
 #include <QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QDirIterator>
+#include <QToolButton>
 #include <QStyle>
-#include<QToolButton>
+#include <QSlider>
 #include "the_player.h"
 #include "the_button.h"
-#include <QSlider>
-#include"ctrlbuttons.h"
+#include "player.h"
+
 
 using namespace std;
 
@@ -109,8 +109,52 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    myWidget window(videos);
+//    // the widget that will show the video
+//    QVideoWidget *videoWidget = new QVideoWidget;
 
+//    // the QMediaPlayer which controls the playback
+//    ThePlayer *player = new ThePlayer;
+//    player->setVideoOutput(videoWidget);
+
+    Player* player = new Player();
+
+    // a row of buttons
+    QWidget *buttonWidget = new QWidget();
+    // a list of the buttons
+    vector<TheButton*> buttons;
+    // the buttons are arranged horizontally
+    QHBoxLayout *layout = new QHBoxLayout();
+    buttonWidget->setLayout(layout);
+
+
+    // create the four buttons
+    for ( int i = 0; i < 4; i++ ) {
+        TheButton *button = new TheButton(buttonWidget);
+//        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
+        player->buttonConnect(button);
+        buttons.push_back(button);
+        layout->addWidget(button);
+        button->init(&videos.at(i));
+    }
+
+    // tell the player what buttons and videos are available
+    player->setContent(&buttons, &videos);
+
+    // create the main window and layout
+    QWidget window;
+    QVBoxLayout *top = new QVBoxLayout();
+    window.setLayout(top);
+    window.setWindowTitle("tomeo");
+    window.setMinimumSize(800, 680);
+
+
+    // add the video and the buttons to the top level widget
+    top->addWidget(player);
+//    top->addWidget(controlWidget);
+    top->addWidget(buttonWidget);
+
+    top->setStretchFactor(player, 3);
+    top->setStretchFactor(buttonWidget, 1);
 
     // showtime!
     window.show();
