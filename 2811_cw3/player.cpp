@@ -22,6 +22,7 @@ Player::Player() {
     connect(mPlayer, &QMediaPlayer::stateChanged, controlBtns, &ControlButtons::setState);
     connect(mPlayer, &QMediaPlayer::mutedChanged, controlBtns, &ControlButtons::setMuted);
     connect(mPlayer, &QMediaPlayer::volumeChanged, controlBtns, &ControlButtons::setVolume);
+    connect(mPlayer, &QMediaPlayer::volumeChanged, controlBtns, &ControlButtons::changeMuteIcon);
 
     connect(controlBtns, &ControlButtons::play, mPlayer, &QMediaPlayer::play);
     connect(controlBtns, &ControlButtons::pasue, mPlayer, &QMediaPlayer::pause);

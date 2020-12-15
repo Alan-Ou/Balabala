@@ -41,6 +41,7 @@ class ControlButtons : public QWidget {
         void setMuted(bool mute);
         void changeVolumeSlider(bool mute);
         void setVolume(int volume);
+        void changeMuteIcon(int volume);
 };
 
 #endif // CONTROLBUTTONS_H

@@ -128,3 +128,14 @@ void ControlButtons::setVolume(int volume) {
 
     mVolumeSlider->setValue(qRound(logarithmicVolume * 100));
 }
+
+// when volume slider is set zero, change the mute button
+void ControlButtons::changeMuteIcon(int volume) {
+    if (volume == 0) {
+        mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+        volumeMute = true;
+    } else {
+        mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+        volumeMute = false;
+    }
+}
