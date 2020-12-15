@@ -5,9 +5,13 @@
 #include <QAudio>
 
 ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
+
+
+
     mPlayBtn = new QPushButton();
     mPlayBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     connect(mPlayBtn, &QPushButton::clicked, this, &ControlButtons::clicked);
+
 
     mStopBtn = new QPushButton();
     mStopBtn->setIcon(style()->standardIcon(QStyle::SP_MediaStop));

@@ -31,13 +31,6 @@ public:
     // all buttons have been setup, store pointers here
     void setContent(vector<TheButton*>* b, vector<TheButtonInfo>* i);
 
-private slots:
-
-
-    // change the image and video for one button every one second
-    void shuffle();
-
-//    void playStateChanged (QMediaPlayer::State ms);
 
 public slots:
     // start playing this ButtonInfo

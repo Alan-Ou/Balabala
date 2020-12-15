@@ -31,7 +31,7 @@
 #include "the_player.h"
 #include "the_button.h"
 #include "player.h"
-
+#include<QScrollArea>
 
 using namespace std;
 
@@ -109,12 +109,7 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-//    // the widget that will show the video
-//    QVideoWidget *videoWidget = new QVideoWidget;
 
-//    // the QMediaPlayer which controls the playback
-//    ThePlayer *player = new ThePlayer;
-//    player->setVideoOutput(videoWidget);
 
     Player* player = new Player();
 
@@ -124,18 +119,30 @@ int main(int argc, char *argv[]) {
     vector<TheButton*> buttons;
     // the buttons are arranged horizontally
     QHBoxLayout *layout = new QHBoxLayout();
-    buttonWidget->setLayout(layout);
 
+    QScrollArea *scrollArea = new QScrollArea();
 
     // create the four buttons
-    for ( int i = 0; i < 4; i++ ) {
+    for ( unsigned int i = 0; i < videos.size(); i++ ) {
         TheButton *button = new TheButton(buttonWidget);
+        button->setFixedWidth(220);
 //        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
         player->buttonConnect(button);
         buttons.push_back(button);
+
         layout->addWidget(button);
         button->init(&videos.at(i));
     }
+     buttonWidget->setLayout(layout);
+    layout->setSpacing(50);
+    scrollArea->setWidget(buttonWidget);
+    scrollArea->widget()->setLayout(layout);
+    scrollArea->setAlignment(Qt::AlignCenter);
+    //scrollArea->setWidget(a);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //scrollArea->setStyleSheet(styleSheet);
 
     // tell the player what buttons and videos are available
     player->setContent(&buttons, &videos);
@@ -151,7 +158,7 @@ int main(int argc, char *argv[]) {
     // add the video and the buttons to the top level widget
     top->addWidget(player);
 //    top->addWidget(controlWidget);
-    top->addWidget(buttonWidget);
+    top->addWidget(scrollArea);
 
     top->setStretchFactor(player, 3);
     top->setStretchFactor(buttonWidget, 1);
