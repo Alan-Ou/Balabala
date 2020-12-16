@@ -1,5 +1,7 @@
 #include "player.h"
 #include <QVBoxLayout>
+#include <QTime>
+#include <QKeyEvent>
 
 Player::Player() {
     mPlayer = new ThePlayer;
@@ -12,6 +14,8 @@ Player::Player() {
     mSlider = new QSlider(Qt::Horizontal, this);
     mSlider->setRange(0, mPlayer->duration() / 1000);
     connect(mSlider, &QSlider::sliderMoved, this, &Player::seekPosition);
+
+    mDurationL = new QLabel(this);
 
     ControlButtons* controlBtns = new ControlButtons(this);
     controlBtns->setState(mPlayer->state());
@@ -32,18 +36,31 @@ Player::Player() {
     connect(controlBtns, &ControlButtons::playerMute, mPlayer, &QMediaPlayer::setMuted);
     connect(controlBtns, &ControlButtons::playerMute, controlBtns, &ControlButtons::changeVolumeSlider);
     connect(controlBtns, &ControlButtons::changeVoulme, mPlayer, &QMediaPlayer::setVolume);
+    connect(controlBtns, &ControlButtons::isVolumeSliderMute, mPlayer, &QMediaPlayer::setMuted);
+    connect(controlBtns, &ControlButtons::setPlayRate, mPlayer, &QMediaPlayer::setPlaybackRate);
+    connect(controlBtns, &ControlButtons::setSkipForward, this, &Player::skipForward);
+    connect(controlBtns, &ControlButtons::setSkipBackward, this, &Player::skipBackward);
+
+    connect(controlBtns, &ControlButtons::setFullScreen, mVideoWidget, &QVideoWidget::setFullScreen);
+
+
+    QHBoxLayout* durationLayout = new QHBoxLayout();
+    durationLayout->addWidget(mSlider);
+    durationLayout->addWidget(mDurationL);
 
     QVBoxLayout* displayLayout = new QVBoxLayout;
     displayLayout->addWidget(mVideoWidget);
-    displayLayout->addWidget(mSlider);
+    displayLayout->addLayout(durationLayout);
     displayLayout->addWidget(controlBtns);
 
     // modify the components' proportion
     displayLayout->setStretchFactor(mVideoWidget, 10);
-    displayLayout->setStretchFactor(mSlider, 1);
+    displayLayout->setStretchFactor(displayLayout, 1);
     displayLayout->setStretchFactor(controlBtns, 1);
 
     setLayout(displayLayout);
+
+    this->grabKeyboard();
 }
 
 void Player::setContent(vector<TheButton *> *buttons, vector<TheButtonInfo>* videos) {
@@ -53,6 +70,47 @@ void Player::setContent(vector<TheButton *> *buttons, vector<TheButtonInfo>* vid
 void Player::buttonConnect(TheButton *button) {
     connect(button, SIGNAL(jumpTo(TheButtonInfo*)), mPlayer, SLOT(jumpTo(TheButtonInfo*)));
 
+}
+
+void Player::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_Escape && mVideoWidget->isFullScreen()) {
+        mVideoWidget->setFullScreen(false);
+        event->accept();
+    } else if (event->key() == Qt::Key_Space) {
+        if (mPlayer->state() == QMediaPlayer::State::PlayingState) {
+            mPlayer->pause();
+        } else if (mPlayer->state() == QMediaPlayer::State::PausedState) {
+            mPlayer->play();
+        }
+    } else if (event->key() == Qt::Key_Up) {
+        int newVolume = mPlayer->volume() + 10;
+        if (newVolume > 100) {
+            newVolume = 100;
+        }
+
+        mPlayer->setVolume(newVolume);
+    } else if (event->key() == Qt::Key_Down) {
+        int newVolume = mPlayer->volume() - 10;
+        if (newVolume < 0) {
+            newVolume = 0;
+        }
+
+        mPlayer->setVolume(newVolume);
+    } else if (event->key() == Qt::Key_Right) {
+        int newPosition = mPlayer->position() + 5*1000;
+        if (newPosition > mDuration*1000) {
+            newPosition = mDuration*1000;
+        }
+
+        mPlayer->setPosition(newPosition);
+    } else if (event->key() == Qt::Key_Left) {
+        int newPosition = mPlayer->position() - 5*1000;
+        if (newPosition < 0) {
+            newPosition = 0;
+        }
+
+        mPlayer->setPosition(newPosition);
+    }
 }
 
 // change the processing slider's maximum length
@@ -66,6 +124,52 @@ void Player::positionChanged(qint64 progress) {
     if (!mSlider->isSliderDown()) {
         mSlider->setValue(progress / 1000);
     }
+
+    updateDurationL(progress / 1000);
+}
+
+void Player::updateDurationL(qint64 currentPosition) {
+    QString time;
+    if (currentPosition || mDuration) {
+        int currentH = currentPosition / 3600;
+        currentPosition = currentPosition % 3600;
+        int currentM = currentPosition / 60;
+        int currentS = currentPosition % 60;
+        QTime currentTime(currentH, currentM, currentS);
+
+        int totalH = mDuration / 3600;
+        int container = mDuration % 3600;
+        int totalM = container / 60;
+        int totalS = container % 60;
+        QTime totalTime(totalH, totalM, totalS);
+
+        QString format = "mm:ss";
+        if (totalH > 0) {
+            format = "hh:mm:ss";
+        }
+
+        time = currentTime.toString(format) + " / " + totalTime.toString(format);
+    }
+
+    mDurationL->setText(time);
+}
+
+void Player::skipForward() {
+    qint64 position = (mSlider->value() + 5) * 1000;
+    if (position > mDuration*1000) {
+        position = mDuration*1000;
+    }
+
+    mPlayer->setPosition(position);
+}
+
+void Player::skipBackward() {
+    qint64 position = (mSlider->value() - 5) * 1000;
+    if (position < 0) {
+        position = 0;
+    }
+
+    mPlayer->setPosition(position);
 }
 
 void Player::seekPosition(int seconds) {

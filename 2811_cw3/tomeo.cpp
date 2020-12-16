@@ -110,7 +110,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-
     Player* player = new Player();
 
     // a row of buttons
@@ -126,7 +125,7 @@ int main(int argc, char *argv[]) {
     for ( unsigned int i = 0; i < videos.size(); i++ ) {
         TheButton *button = new TheButton(buttonWidget);
         button->setFixedWidth(220);
-//        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
+
         player->buttonConnect(button);
         buttons.push_back(button);
 
@@ -138,11 +137,11 @@ int main(int argc, char *argv[]) {
     scrollArea->setWidget(buttonWidget);
     scrollArea->widget()->setLayout(layout);
     scrollArea->setAlignment(Qt::AlignCenter);
-    //scrollArea->setWidget(a);
+
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //scrollArea->setStyleSheet(styleSheet);
+
 
     // tell the player what buttons and videos are available
     player->setContent(&buttons, &videos);

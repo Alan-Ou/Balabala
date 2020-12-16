@@ -8,9 +8,11 @@ using namespace std;
 
 ThePlayer::ThePlayer(): QMediaPlayer(NULL) {
 
+
     mTimer = new QTimer(NULL);
     mTimer->setInterval(1000); // 1000ms is one second between ...
     mTimer->start();
+    connect( mTimer, SIGNAL (timeout()), SLOT ( shuffle() ) ); // ...running shuffle method
 
 }
 

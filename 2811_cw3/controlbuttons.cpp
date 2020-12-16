@@ -18,22 +18,52 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
     mStopBtn->setEnabled(false);
     connect(mStopBtn, &QPushButton::clicked, this, &ControlButtons::stop);
 
+    mSkipForward = new QPushButton();
+    mSkipForward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
+    connect(mSkipForward, &QPushButton::clicked, this, &ControlButtons::sendSkipForward);
+
+    mSkipBackward = new QPushButton();
+    mSkipBackward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
+    connect(mSkipBackward, &QPushButton::clicked, this, &ControlButtons::sendSkipBackward);
+
     mMuteBtn = new QPushButton();
     mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
     connect(mMuteBtn, &QPushButton::clicked, this, &ControlButtons::muteClicked);
 
     mVolumeSlider = new QSlider(Qt::Horizontal, this);
     mVolumeSlider->setRange(0, 100);
-    mVolumeSlider->setMaximumWidth(400);
+    mVolumeSlider->setFixedWidth(251);
     connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeSliderChanged);
     preVloume = mVolumeSlider->value();
+
+    mVolumeValue = new QLabel();
+    connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeValueChanged);
+
+
+    mRateBox = new QComboBox();
+    mRateBox->addItem("0.5x", QVariant(0.5));
+    mRateBox->addItem("1.0x", QVariant(1.0));
+    mRateBox->addItem("2.0x", QVariant(2.0));
+    mRateBox->setCurrentIndex(1);
+    connect(mRateBox, QOverload<int>::of(&QComboBox::activated), this, &ControlButtons::changeRate);
+
+
+    mFullScreenBtn = new QPushButton();
+    mFullScreenBtn->setText("Full Screen");
+    connect(mFullScreenBtn, &QPushButton::clicked, this, &ControlButtons::fullScreenClicked);
 
     // eastablish the horizontal layout
     QHBoxLayout* controls = new QHBoxLayout();
     controls->addWidget(mStopBtn);
+    controls->addWidget(mSkipBackward);
     controls->addWidget(mPlayBtn);
+    controls->addWidget(mSkipForward);
     controls->addWidget(mMuteBtn);
     controls->addWidget(mVolumeSlider);
+    controls->addWidget(mVolumeValue);
+    controls->addStretch();
+    controls->addWidget(mRateBox);
+    controls->addWidget(mFullScreenBtn);
 
     setLayout(controls);
 }
@@ -42,13 +72,7 @@ bool ControlButtons::isMuted() const {
     return volumeMute;
 }
 
-int ControlButtons::volume() const {
-    qreal linearVolume =  QAudio::convertVolume(mVolumeSlider->value() / qreal(100),
-                                                QAudio::LogarithmicVolumeScale,
-                                                QAudio::LinearVolumeScale);
 
-    return qRound(linearVolume * 100);
-}
 
 // click button and emit the signal
 void ControlButtons::clicked() {
@@ -70,7 +94,13 @@ void ControlButtons::muteClicked() {
 }
 
 void ControlButtons::volumeSliderChanged() {
-    emit changeVoulme(volume());
+    emit changeVoulme(mVolumeSlider->value());
+}
+
+// when volume slider is changed, change the text of the volume value label
+void ControlButtons::volumeValueChanged() {
+    QString volumeValue = QString::number(mVolumeSlider->value());
+    mVolumeValue->setText(volumeValue + "%");
 }
 
 // accroding the media player state to change the button's icon
@@ -124,13 +154,23 @@ void ControlButtons::changeVolumeSlider(bool mute) {
 
 }
 
+void ControlButtons::changeRate() {
+    qreal rate = mRateBox->itemData(mRateBox->currentIndex()).toDouble();
+
+    emit setPlayRate(rate);
+}
+
+void ControlButtons::sendSkipForward() {
+    emit setSkipForward();
+}
+
+void ControlButtons::sendSkipBackward() {
+    emit setSkipBackward();
+}
+
 // set the media's volume
 void ControlButtons::setVolume(int volume) {
-    qreal logarithmicVolume = QAudio::convertVolume(volume / qreal(100),
-                                                    QAudio::LinearVolumeScale,
-                                                    QAudio::LogarithmicVolumeScale);
-
-    mVolumeSlider->setValue(qRound(logarithmicVolume * 100));
+    mVolumeSlider->setValue(volume);
 }
 
 // when volume slider is set zero, change the mute button
@@ -138,8 +178,15 @@ void ControlButtons::changeMuteIcon(int volume) {
     if (volume == 0) {
         mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
         volumeMute = true;
+        emit isVolumeSliderMute(true);
     } else {
         mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
         volumeMute = false;
+        emit isVolumeSliderMute(false);
     }
+}
+
+// when full screen button is clicked, emit a setFullScreen signal
+void ControlButtons::fullScreenClicked() {
+    emit setFullScreen(true);
 }
