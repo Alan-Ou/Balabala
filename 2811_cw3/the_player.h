@@ -31,6 +31,9 @@ public:
     // all buttons have been setup, store pointers here
     void setContent(vector<TheButton*>* b, vector<TheButtonInfo>* i);
 
+signals:
+    void show(TheButtonInfo* button);
+
 
 public slots:
     // start playing this ButtonInfo

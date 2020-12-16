@@ -18,6 +18,7 @@ class Player: public QWidget {
         Player();
         void setContent(vector<TheButton*>* buttons, vector<TheButtonInfo>* videos);
         void buttonConnect(TheButton* button);
+        void show(TheButtonInfo *button);
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;
@@ -25,8 +26,11 @@ class Player: public QWidget {
         ThePlayer* mPlayer;
         QVideoWidget* mVideoWidget;
         QSlider* mSlider;
+        QLabel*playing;
         QLabel* mDurationL;
         qint64 mDuration;
+
+        void connectCtrBtn(ControlButtons* controlBtns);
     private slots:
         void durationChanged(qint64 duration);
         void positionChanged(qint64 progress);

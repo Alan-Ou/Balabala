@@ -4,6 +4,12 @@
 #include <QKeyEvent>
 
 Player::Player() {
+    playing = new QLabel();
+    playing->setAlignment(Qt::AlignCenter);
+    QFont ft;
+    ft.setPointSize(30);
+    playing->setFont(ft);
+
     mPlayer = new ThePlayer;
     connect(mPlayer, &QMediaPlayer::durationChanged, this, &Player::durationChanged);
     connect(mPlayer, &QMediaPlayer::positionChanged, this, &Player::positionChanged);
@@ -28,18 +34,9 @@ Player::Player() {
     connect(mPlayer, &QMediaPlayer::volumeChanged, controlBtns, &ControlButtons::setVolume);
     connect(mPlayer, &QMediaPlayer::volumeChanged, controlBtns, &ControlButtons::changeMuteIcon);
 
-    connect(controlBtns, &ControlButtons::play, mPlayer, &QMediaPlayer::play);
-    connect(controlBtns, &ControlButtons::pasue, mPlayer, &QMediaPlayer::pause);
-    connect(controlBtns, &ControlButtons::stop, mPlayer, &QMediaPlayer::stop);
-//    connect(controlBtns, &ControlButtons::stop, mVideoWidget, QOverload<>::of(&QVideoWidget::update));
-    connect(controlBtns, &ControlButtons::stop, this, &Player::setMediaSlider0);
-    connect(controlBtns, &ControlButtons::playerMute, mPlayer, &QMediaPlayer::setMuted);
-    connect(controlBtns, &ControlButtons::playerMute, controlBtns, &ControlButtons::changeVolumeSlider);
-    connect(controlBtns, &ControlButtons::changeVoulme, mPlayer, &QMediaPlayer::setVolume);
-    connect(controlBtns, &ControlButtons::isVolumeSliderMute, mPlayer, &QMediaPlayer::setMuted);
-    connect(controlBtns, &ControlButtons::setPlayRate, mPlayer, &QMediaPlayer::setPlaybackRate);
-    connect(controlBtns, &ControlButtons::setSkipForward, this, &Player::skipForward);
-    connect(controlBtns, &ControlButtons::setSkipBackward, this, &Player::skipBackward);
+    connectCtrBtn(controlBtns);
+
+    connect(mPlayer,&ThePlayer::show,this,&Player::show);
 
     connect(controlBtns, &ControlButtons::setFullScreen, mVideoWidget, &QVideoWidget::setFullScreen);
 
@@ -49,6 +46,7 @@ Player::Player() {
     durationLayout->addWidget(mDurationL);
 
     QVBoxLayout* displayLayout = new QVBoxLayout;
+    displayLayout->addWidget(playing);
     displayLayout->addWidget(mVideoWidget);
     displayLayout->addLayout(durationLayout);
     displayLayout->addWidget(controlBtns);
@@ -63,6 +61,7 @@ Player::Player() {
     this->grabKeyboard();
 }
 
+// Set video content
 void Player::setContent(vector<TheButton *> *buttons, vector<TheButtonInfo>* videos) {
     mPlayer->setContent(buttons, videos);
 }
@@ -72,6 +71,14 @@ void Player::buttonConnect(TheButton *button) {
 
 }
 
+// Show thumbnail information
+void Player::show(TheButtonInfo* button) {
+    playing->setText(button->thumb);
+
+}
+
+
+// Add key press event
 void Player::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape && mVideoWidget->isFullScreen()) {
         mVideoWidget->setFullScreen(false);
@@ -97,20 +104,34 @@ void Player::keyPressEvent(QKeyEvent *event) {
 
         mPlayer->setVolume(newVolume);
     } else if (event->key() == Qt::Key_Right) {
-        int newPosition = mPlayer->position() + 5*1000;
+        int newPosition = mPlayer->position() + 3*1000;
         if (newPosition > mDuration*1000) {
             newPosition = mDuration*1000;
         }
 
         mPlayer->setPosition(newPosition);
     } else if (event->key() == Qt::Key_Left) {
-        int newPosition = mPlayer->position() - 5*1000;
+        int newPosition = mPlayer->position() - 3*1000;
         if (newPosition < 0) {
             newPosition = 0;
         }
 
         mPlayer->setPosition(newPosition);
     }
+}
+
+void Player::connectCtrBtn(ControlButtons* controlBtns) {
+    connect(controlBtns, &ControlButtons::play, mPlayer, &QMediaPlayer::play);
+    connect(controlBtns, &ControlButtons::pasue, mPlayer, &QMediaPlayer::pause);
+    connect(controlBtns, &ControlButtons::stop, mPlayer, &QMediaPlayer::stop);
+    connect(controlBtns, &ControlButtons::stop, this, &Player::setMediaSlider0);
+    connect(controlBtns, &ControlButtons::playerMute, mPlayer, &QMediaPlayer::setMuted);
+    connect(controlBtns, &ControlButtons::playerMute, controlBtns, &ControlButtons::changeVolumeSlider);
+    connect(controlBtns, &ControlButtons::changeVoulme, mPlayer, &QMediaPlayer::setVolume);
+    connect(controlBtns, &ControlButtons::isVolumeSliderMute, mPlayer, &QMediaPlayer::setMuted);
+    connect(controlBtns, &ControlButtons::setPlayRate, mPlayer, &QMediaPlayer::setPlaybackRate);
+    connect(controlBtns, &ControlButtons::setSkipForward, this, &Player::skipForward);
+    connect(controlBtns, &ControlButtons::setSkipBackward, this, &Player::skipBackward);
 }
 
 // change the processing slider's maximum length
@@ -154,8 +175,9 @@ void Player::updateDurationL(qint64 currentPosition) {
     mDurationL->setText(time);
 }
 
+// Video fast forward
 void Player::skipForward() {
-    qint64 position = (mSlider->value() + 5) * 1000;
+    qint64 position = (mSlider->value() + 3) * 1000;
     if (position > mDuration*1000) {
         position = mDuration*1000;
     }
@@ -163,8 +185,9 @@ void Player::skipForward() {
     mPlayer->setPosition(position);
 }
 
+// Video play back
 void Player::skipBackward() {
-    qint64 position = (mSlider->value() - 5) * 1000;
+    qint64 position = (mSlider->value() - 3) * 1000;
     if (position < 0) {
         position = 0;
     }

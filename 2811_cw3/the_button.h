@@ -15,8 +15,9 @@ class TheButtonInfo {
 public:
     QUrl* url; // video file to play
     QIcon* icon; // icon to display
+    QString  thumb;
 
-    TheButtonInfo ( QUrl* url, QIcon* icon) : url (url), icon (icon) {}
+    TheButtonInfo ( QUrl* url, QIcon* icon, QString  thumb) : url (url), icon (icon), thumb(thumb) {}
 };
 
 class TheButton : public QPushButton {

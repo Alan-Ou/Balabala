@@ -5,41 +5,43 @@
 #include <QAudio>
 
 ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
-
-
-
+    // Playing button
     mPlayBtn = new QPushButton();
     mPlayBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     connect(mPlayBtn, &QPushButton::clicked, this, &ControlButtons::clicked);
 
-
+    // Stop play button
     mStopBtn = new QPushButton();
     mStopBtn->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
     mStopBtn->setEnabled(false);
     connect(mStopBtn, &QPushButton::clicked, this, &ControlButtons::stop);
 
+    // Video fast forward button
     mSkipForward = new QPushButton();
     mSkipForward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
     connect(mSkipForward, &QPushButton::clicked, this, &ControlButtons::sendSkipForward);
 
+    // Video play back button
     mSkipBackward = new QPushButton();
     mSkipBackward->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
     connect(mSkipBackward, &QPushButton::clicked, this, &ControlButtons::sendSkipBackward);
 
+    // Mute button
     mMuteBtn = new QPushButton();
     mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
     connect(mMuteBtn, &QPushButton::clicked, this, &ControlButtons::muteClicked);
 
+    // Volume slider
     mVolumeSlider = new QSlider(Qt::Horizontal, this);
     mVolumeSlider->setRange(0, 100);
-    mVolumeSlider->setFixedWidth(251);
+    mVolumeSlider->setFixedWidth(300);
     connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeSliderChanged);
     preVloume = mVolumeSlider->value();
 
     mVolumeValue = new QLabel();
     connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeValueChanged);
 
-
+    // Play rate button
     mRateBox = new QComboBox();
     mRateBox->addItem("0.5x", QVariant(0.5));
     mRateBox->addItem("1.0x", QVariant(1.0));
@@ -47,7 +49,7 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
     mRateBox->setCurrentIndex(1);
     connect(mRateBox, QOverload<int>::of(&QComboBox::activated), this, &ControlButtons::changeRate);
 
-
+    // Full screen button
     mFullScreenBtn = new QPushButton();
     mFullScreenBtn->setText("Full Screen");
     connect(mFullScreenBtn, &QPushButton::clicked, this, &ControlButtons::fullScreenClicked);
@@ -71,8 +73,6 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
 bool ControlButtons::isMuted() const {
     return volumeMute;
 }
-
-
 
 // click button and emit the signal
 void ControlButtons::clicked() {
@@ -156,7 +156,6 @@ void ControlButtons::changeVolumeSlider(bool mute) {
 
 void ControlButtons::changeRate() {
     qreal rate = mRateBox->itemData(mRateBox->currentIndex()).toDouble();
-
     emit setPlayRate(rate);
 }
 

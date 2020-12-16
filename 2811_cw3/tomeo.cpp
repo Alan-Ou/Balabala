@@ -61,7 +61,9 @@ vector<TheButtonInfo> getInfoIn (string loc) {
                     if (!sprite.isNull()) {
                         QIcon* ico = new QIcon(QPixmap::fromImage(sprite)); // voodoo to create an icon for the button
                         QUrl* url = new QUrl(QUrl::fromLocalFile( f )); // convert the file location to a generic url
-                        out . push_back(TheButtonInfo( url , ico  ) ); // add to the output list
+                        thumb = f.right(f.length()-loc.length()-1);
+                        thumb = thumb.left( thumb .length() - 4);
+                        out . push_back(TheButtonInfo( url , ico, thumb  ) ); // add to the output list
                     }
                     else
                         qDebug() << "warning: skipping video because I couldn't process thumbnail " << thumb << endl;
@@ -110,6 +112,7 @@ int main(int argc, char *argv[]) {
     }
 
 
+
     Player* player = new Player();
 
     // a row of buttons
@@ -117,31 +120,34 @@ int main(int argc, char *argv[]) {
     // a list of the buttons
     vector<TheButton*> buttons;
     // the buttons are arranged horizontally
-    QHBoxLayout *layout = new QHBoxLayout();
+    QGridLayout *layout = new QGridLayout();
 
     QScrollArea *scrollArea = new QScrollArea();
 
     // create the four buttons
     for ( unsigned int i = 0; i < videos.size(); i++ ) {
         TheButton *button = new TheButton(buttonWidget);
+        QLabel * label = new QLabel();
+        label->setText(videos.at(i).thumb);
+        label->setAlignment(Qt::AlignCenter);
         button->setFixedWidth(220);
-
+//        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
         player->buttonConnect(button);
         buttons.push_back(button);
-
-        layout->addWidget(button);
+        layout->addWidget(button,0,i,1,1);
+        layout->addWidget(label,1,i,1,1);
         button->init(&videos.at(i));
     }
      buttonWidget->setLayout(layout);
-    layout->setSpacing(50);
+    layout->setSpacing(5);
     scrollArea->setWidget(buttonWidget);
     scrollArea->widget()->setLayout(layout);
     scrollArea->setAlignment(Qt::AlignCenter);
-
+    //scrollArea->setWidget(a);
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
+    //scrollArea->setStyleSheet(styleSheet);
 
     // tell the player what buttons and videos are available
     player->setContent(&buttons, &videos);
@@ -151,7 +157,7 @@ int main(int argc, char *argv[]) {
     QVBoxLayout *top = new QVBoxLayout();
     window.setLayout(top);
     window.setWindowTitle("tomeo");
-    window.setMinimumSize(800, 680);
+    window.setMinimumSize(1200, 1000);
 
 
     // add the video and the buttons to the top level widget
