@@ -27,6 +27,8 @@ class ControlButtons : public QWidget {
         QPushButton* mMuteBtn;
         QAbstractSlider* mVolumeSlider;
         QLabel* mVolumeValue;
+        QAbstractSlider* mBrightSlider;
+        QLabel* mBrightValue;
         QComboBox* mRateBox;
         QPushButton* mFullScreenBtn;
         QMediaPlayer::State mPlayerState = QMediaPlayer::StoppedState;
@@ -37,6 +39,7 @@ class ControlButtons : public QWidget {
         void stop();
         void playerMute(bool mute);
         void changeVoulme(int volume);
+        void changeBright(int bright);
         void isVolumeSliderMute(bool mute);
         void setFullScreen(bool state);
         void setPlayRate(qreal rate);

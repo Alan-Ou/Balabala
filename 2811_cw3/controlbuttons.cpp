@@ -28,7 +28,7 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
 
     // Mute button
     mMuteBtn = new QPushButton();
-    mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+    mMuteBtn->setIcon(QIcon(":/volume.svg"));
     connect(mMuteBtn, &QPushButton::clicked, this, &ControlButtons::muteClicked);
 
     // Volume slider
@@ -41,7 +41,7 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
     mVolumeValue = new QLabel();
     connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeValueChanged);
 
-    // Play rate button
+    // Play rate comboBox
     mRateBox = new QComboBox();
     mRateBox->addItem("0.5x", QVariant(0.5));
     mRateBox->addItem("1.0x", QVariant(1.0));
@@ -51,7 +51,7 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
 
     // Full screen button
     mFullScreenBtn = new QPushButton();
-    mFullScreenBtn->setText("Full Screen");
+    mFullScreenBtn->setIcon(QIcon(":/fullScreen.svg"));
     connect(mFullScreenBtn, &QPushButton::clicked, this, &ControlButtons::fullScreenClicked);
 
     // eastablish the horizontal layout
@@ -131,9 +131,9 @@ void ControlButtons::setMuted(bool mute) {
         volumeMute = mute;
 
         if (mute) {
-            mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+            mMuteBtn->setIcon(QIcon(":/mute.svg"));
         } else {
-            mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+            mMuteBtn->setIcon(QIcon(":/volume.svg"));
         }
     }
 }
@@ -175,11 +175,11 @@ void ControlButtons::setVolume(int volume) {
 // when volume slider is set zero, change the mute button
 void ControlButtons::changeMuteIcon(int volume) {
     if (volume == 0) {
-        mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolumeMuted));
+        mMuteBtn->setIcon(QIcon(":/mute.svg"));
         volumeMute = true;
         emit isVolumeSliderMute(true);
     } else {
-        mMuteBtn->setIcon(style()->standardIcon(QStyle::SP_MediaVolume));
+        mMuteBtn->setIcon(QIcon(":/volume.svg"));
         volumeMute = false;
         emit isVolumeSliderMute(false);
     }

@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>mute.svg</file>
+        <file>volume.svg</file>
+        <file>fullScreen.svg</file>
+        <file>playRate.svg</file>
+    </qresource>
+</RCC>
