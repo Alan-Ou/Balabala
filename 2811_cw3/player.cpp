@@ -27,6 +27,7 @@ Player::Player() {
     controlBtns->setState(mPlayer->state());
     controlBtns->setMuted(controlBtns->isMuted());
     controlBtns->setVolume(mPlayer->volume());
+    setRateBox(controlBtns->getRateBox());
 
 
     connect(mPlayer, &QMediaPlayer::stateChanged, controlBtns, &ControlButtons::setState);
@@ -77,6 +78,17 @@ void Player::show(TheButtonInfo* button) {
 
 }
 
+void Player::setWindow(QWidget* window) {
+    mWindow = window;
+}
+
+void Player::setRateBox(QComboBox *rateBox) {
+    mRateBox = rateBox;
+}
+
+void Player::setLabels(vector<QLabel*>* labels) {
+    mLabels = labels;
+}
 
 // Add key press event
 void Player::keyPressEvent(QKeyEvent *event) {
@@ -126,12 +138,17 @@ void Player::connectCtrBtn(ControlButtons* controlBtns) {
     connect(controlBtns, &ControlButtons::stop, mPlayer, &QMediaPlayer::stop);
     connect(controlBtns, &ControlButtons::stop, this, &Player::setMediaSlider0);
     connect(controlBtns, &ControlButtons::playerMute, mPlayer, &QMediaPlayer::setMuted);
+    connect(controlBtns, &ControlButtons::playerDark, this, &Player::setBackground);
+    connect(controlBtns, &ControlButtons::playerDark, controlBtns, &ControlButtons::setNight);
+
     connect(controlBtns, &ControlButtons::playerMute, controlBtns, &ControlButtons::changeVolumeSlider);
     connect(controlBtns, &ControlButtons::changeVoulme, mPlayer, &QMediaPlayer::setVolume);
     connect(controlBtns, &ControlButtons::isVolumeSliderMute, mPlayer, &QMediaPlayer::setMuted);
     connect(controlBtns, &ControlButtons::setPlayRate, mPlayer, &QMediaPlayer::setPlaybackRate);
     connect(controlBtns, &ControlButtons::setSkipForward, this, &Player::skipForward);
     connect(controlBtns, &ControlButtons::setSkipBackward, this, &Player::skipBackward);
+
+
 }
 
 // change the processing slider's maximum length
@@ -202,5 +219,37 @@ void Player::seekPosition(int seconds) {
 // when click the stop button, set the processing slider to zero
 void Player::setMediaSlider0() {
     mSlider->setValue(0);
+}
+
+void Player::setBackground() {
+   mBackgroundLight = !mBackgroundLight;
+
+   if (!mBackgroundLight) {
+       QPalette pal(mWindow->palette());
+
+       pal.setColor(QPalette::Background, QColor (34, 34, 34)); //设置背景黑色
+       mWindow->setAutoFillBackground(true);
+       mWindow->setPalette(pal);
+
+       setStyleSheet("color: white;");
+       mRateBox->setStyleSheet("color: black;");
+
+       for (unsigned int i=0; i < mLabels->size(); i++) {
+           mLabels->at(i)->setStyleSheet("color: white;");
+       }
+   } else if (mBackgroundLight) {
+       QPalette pal(mWindow->palette());
+
+       pal.setColor(QPalette::Background, QColor (255, 255, 255)); //设置背景黑色
+       mWindow->setAutoFillBackground(true);
+       mWindow->setPalette(pal);
+
+       setStyleSheet("color: black;");
+       mRateBox->setStyleSheet("color: black;");
+
+       for (unsigned int i=0; i < mLabels->size(); i++) {
+           mLabels->at(i)->setStyleSheet("color: black;");
+       }
+   }
 }
 

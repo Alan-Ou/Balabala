@@ -124,14 +124,16 @@ int main(int argc, char *argv[]) {
 
     QScrollArea *scrollArea = new QScrollArea();
 
+    vector<QLabel*> labels;
+    player->setLabels(&labels);
     // create the four buttons
     for ( unsigned int i = 0; i < videos.size(); i++ ) {
         TheButton *button = new TheButton(buttonWidget);
         QLabel * label = new QLabel();
         label->setText(videos.at(i).thumb);
         label->setAlignment(Qt::AlignCenter);
+        labels.push_back(label);
         button->setFixedWidth(220);
-//        button->connect(button, SIGNAL(jumpTo(TheButtonInfo* )), player, SLOT (jumpTo(TheButtonInfo* ))); // when clicked, tell the player to play.
         player->buttonConnect(button);
         buttons.push_back(button);
         layout->addWidget(button,0,i,1,1);
@@ -143,33 +145,34 @@ int main(int argc, char *argv[]) {
     scrollArea->setWidget(buttonWidget);
     scrollArea->widget()->setLayout(layout);
     scrollArea->setAlignment(Qt::AlignCenter);
-    //scrollArea->setWidget(a);
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //scrollArea->setStyleSheet(styleSheet);
+
 
     // tell the player what buttons and videos are available
     player->setContent(&buttons, &videos);
 
     // create the main window and layout
-    QWidget window;
+    QWidget* window = new QWidget();
+    player->setWindow(window);
+
+
     QVBoxLayout *top = new QVBoxLayout();
-    window.setLayout(top);
-    window.setWindowTitle("tomeo");
-    window.setMinimumSize(1200, 1000);
+    window->setLayout(top);
+    window->setWindowTitle("tomeo");
+    window->setMinimumSize(1000, 1000);
 
 
     // add the video and the buttons to the top level widget
     top->addWidget(player);
-//    top->addWidget(controlWidget);
     top->addWidget(scrollArea);
 
     top->setStretchFactor(player, 3);
     top->setStretchFactor(buttonWidget, 1);
 
     // showtime!
-    window.show();
+    window->show();
 
     // wait for the app to terminate
     return app.exec();

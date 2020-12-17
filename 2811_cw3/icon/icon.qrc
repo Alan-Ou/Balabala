@@ -4,5 +4,8 @@
         <file>volume.svg</file>
         <file>fullScreen.svg</file>
         <file>playRate.svg</file>
+        <file>file.svg</file>
+        <file>dayMode.svg</file>
+        <file>nightMode.svg</file>
     </qresource>
 </RCC>

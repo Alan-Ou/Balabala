@@ -5,6 +5,18 @@
 #include <QAudio>
 
 ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
+
+    // Open file button
+    mOpenFile = new QPushButton();
+    mOpenFile->setIcon(QIcon(":/file.svg"));
+    connect(mOpenFile,&QPushButton::clicked, this, &ControlButtons::fileOpened);
+
+    //  Open file message
+    messageFile->setText("The 'Open files' button is not currently working! The purpose of this button is to "
+                               "open the specified video files from your computer.");
+    messageFile->hide();
+
+
     // Playing button
     mPlayBtn = new QPushButton();
     mPlayBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
@@ -42,12 +54,18 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
     connect(mVolumeSlider, &QSlider::valueChanged, this, &ControlButtons::volumeValueChanged);
 
     // Play rate comboBox
-    mRateBox = new QComboBox();
+    mRateBox = new QComboBox(this);
     mRateBox->addItem("0.5x", QVariant(0.5));
     mRateBox->addItem("1.0x", QVariant(1.0));
     mRateBox->addItem("2.0x", QVariant(2.0));
     mRateBox->setCurrentIndex(1);
     connect(mRateBox, QOverload<int>::of(&QComboBox::activated), this, &ControlButtons::changeRate);
+
+    // Brightness button
+    mBrightBtn = new QPushButton();
+    mBrightBtn->setIcon(QIcon(":/nightMode.svg"));
+    connect(mBrightBtn, &QPushButton::clicked, this, &ControlButtons::nightCliked);
+
 
     // Full screen button
     mFullScreenBtn = new QPushButton();
@@ -56,6 +74,7 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
 
     // eastablish the horizontal layout
     QHBoxLayout* controls = new QHBoxLayout();
+    controls->addWidget(mOpenFile);
     controls->addWidget(mStopBtn);
     controls->addWidget(mSkipBackward);
     controls->addWidget(mPlayBtn);
@@ -65,13 +84,22 @@ ControlButtons::ControlButtons(QWidget *parent): QWidget(parent) {
     controls->addWidget(mVolumeValue);
     controls->addStretch();
     controls->addWidget(mRateBox);
+    controls->addWidget(mBrightBtn);
     controls->addWidget(mFullScreenBtn);
 
     setLayout(controls);
 }
 
+QComboBox* ControlButtons::getRateBox() {
+    return mRateBox;
+}
+
 bool ControlButtons::isMuted() const {
     return volumeMute;
+}
+
+bool ControlButtons:: isNight() const{
+    return nightMode;
 }
 
 // click button and emit the signal
@@ -89,8 +117,15 @@ void ControlButtons::clicked() {
     }
 }
 
+
 void ControlButtons::muteClicked() {
     emit playerMute(!volumeMute);
+}
+
+
+
+void ControlButtons::nightCliked(){
+    emit playerDark(!nightMode);
 }
 
 void ControlButtons::volumeSliderChanged() {
@@ -134,6 +169,19 @@ void ControlButtons::setMuted(bool mute) {
             mMuteBtn->setIcon(QIcon(":/mute.svg"));
         } else {
             mMuteBtn->setIcon(QIcon(":/volume.svg"));
+        }
+    }
+}
+
+// according the light state to change the light button's icon
+void ControlButtons::setNight(bool light) {
+    if (light != nightMode) {
+        nightMode = light;
+
+        if (light) {
+            mBrightBtn->setIcon(QIcon(":/dayMode.svg"));
+        } else {
+            mBrightBtn->setIcon(QIcon(":/nightMode.svg"));
         }
     }
 }
@@ -185,7 +233,14 @@ void ControlButtons::changeMuteIcon(int volume) {
     }
 }
 
+
 // when full screen button is clicked, emit a setFullScreen signal
 void ControlButtons::fullScreenClicked() {
     emit setFullScreen(true);
+}
+
+
+// Following functionality has not been implemented
+void ControlButtons::fileOpened(){
+    messageFile->show();
 }
